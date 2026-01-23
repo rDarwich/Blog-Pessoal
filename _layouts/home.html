@@ -53,18 +53,10 @@ layout: default
         {% assign card_body_col = '12' %}
 
         {% if post.image %}
-          {% assign src = post.image.path | default: post.image %}
-
-          {% if post.media_subpath %}
-            {% unless src contains '://' %}
-              {% assign src = post.media_subpath
-                | append: '/'
-                | append: src
-                | replace: '///', '/'
-                | replace: '//', '/'
-              %}
-            {% endunless %}
-          {% endif %}
+          {% assign _src_url = post.image.path | default: post.image %}
+          {% capture src %}
+            {%- include media-url.html src=_src_url subpath=post.media_subpath -%}
+          {% endcapture %}
 
           {% if post.image.lqip %}
             {% assign lqip = post.image.lqip %}
