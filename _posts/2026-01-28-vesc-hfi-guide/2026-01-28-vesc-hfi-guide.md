@@ -201,7 +201,7 @@ HFI는 정지 상태에서도 전류를 소모합니다.
 ### 관련 포스트
 <!-- - [VESC 펌웨어 업그레이드](/posts/vesc-firmware-upgrade-guide) -->
 - [펌웨어 업그레이드]({{ site.baseurl }}/posts/vesc-firmware-upgrade-guide)
-- [VESC Tool 다운로드 및 설치]({{ site.baseurl }}/posts/vesc-tools-download)
+- [VESC Tool 다운로드 및 설치]({{ site.baseurl }}/posts/vesc-tool-download)
 
 ### 추천 영상
 
