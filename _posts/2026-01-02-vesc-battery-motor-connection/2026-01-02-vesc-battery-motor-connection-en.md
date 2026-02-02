@@ -25,14 +25,14 @@ The battery input on the VESC uses an XT90 M connector. Most 4s LiPo batteries u
 
 ![VESC-to-motor connection](/assets/img/posts/vesc-battery-motor-connection/image-2.png)
 
-The motor output on the VESC uses a 4.0 bullet connector.
+The motor output on the VESC uses a 4.0 bullet F connector.
 
 ### When connecting a Velineon 3500kv motor
 
 - This motor uses 3.5 male bullet connectors.
-- Create three custom adapters by combining 4.0 male and 3.5 female bullet connectors.
+- Solder 4.0 male and 3.5 female bullet connectors together to make three custom adapters.
 
-![Soldered 4.0 male and 3.5 female bullets](/assets/img/posts/vesc-battery-motor-connection/bullet-connector-solder.png)
+![Soldered 4.0 male + 3.5 female bullet connectors](/assets/img/posts/vesc-battery-motor-connection/bullet-connector-solder.png)
 
 - Alternatively, you can cut the motor leads and solder 4.0 male bullet connectors directly.
 
@@ -42,4 +42,4 @@ If the motor is shipped without bullet connectors, solder 4.0 male connectors an
 
 ## Wrap-up
 
-To connect the VESC safely, confirm the connector types first. The battery side uses XT90 M, and the motor side uses 4.0 bullet connectors, so you may need adapters or soldering depending on the motor. Double-check connector type and polarity before powering on.
+To connect the VESC safely, confirm the connector types first. Depending on the motor, you may need adapters or soldering. Double-check connector type and polarity before powering on.

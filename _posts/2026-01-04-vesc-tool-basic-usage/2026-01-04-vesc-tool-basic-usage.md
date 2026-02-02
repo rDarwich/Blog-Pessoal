@@ -32,7 +32,7 @@ sudo chmod 666 /dev/ttyACM0
 - USB 기반 다른 장치에서 권한 문제가 발생해도 동일하게 적용 가능합니다.
 - VESC Tool과 VESC ROS driver는 동시에 연결할 수 없습니다.
 
-> 컴퓨터에서 VESC 포트의 Manufacturer 정보를 읽어 자동으로 권한을 부여하는 방법도 있습니다. 자세한 내용은 [참고자료](https://github.com/HMCL-UNIST/unicorn-racing-stack/blob/main/INSTALLATION.md#udev-rules-setup)를 확인하세요.
+> 컴퓨터에서 VESC 포트의 Manufacturer 정보를 읽어 자동으로 권한을 부여하는 방법도 있습니다. 이렇게 하면 컴퓨터가 reboot될 때도 권한이 자동으로 적용되어, 실제 레이스카에 있는 컴퓨팅 유닛에 설정해 두면 좋습니다. 자세한 내용은 [참고자료](https://github.com/HMCL-UNIST/unicorn-racing-stack/blob/main/INSTALLATION.md#udev-rules-setup)를 확인하세요.
 
 ## VESC Tool 기본 사용법
 
@@ -61,8 +61,8 @@ VESC Tool 오른쪽 탭에는 다음과 같은 버튼이 있습니다.
 ### 중요한 주의사항
 
 - VESC Tool에서 변경한 파라미터는 `Write`를 누르기 전까지 적용되지 않습니다.
-- VESC를 연결한 뒤, 기존 설정을 확인하지 않고 `Write`를 누르면 이전 설정이 덮어씌워질 수 있습니다.
-- 반드시 `Read`로 현재 설정을 확인한 후에 `Write`를 진행하는 것이 안전합니다.
+- VESC를 연결한 뒤, 기존 설정을 확인하지 않고 `Write`를 누르면 더미 설정으로 덮어씌워질 수 있습니다.
+- 반드시 `Read`로 VESC에서 현재 설정을 읽어온 후에 `Write`를 진행하는 것이 안전합니다.
 - 설정을 파일로 저장하는 기능도 제공됩니다.
 - Motor Settings에서는 모터 관련 값을, App Settings에서는 Servo 출력 및 IMU 관련 설정을 조정합니다.
 

@@ -32,7 +32,7 @@ sudo chmod 666 /dev/ttyACM0
 - This also works for other USB devices with similar permission errors.
 - VESC Tool and the VESC ROS driver cannot be connected at the same time.
 
-> You can also set udev rules to grant permissions automatically by reading the VESC port Manufacturer field. See the [reference](https://github.com/HMCL-UNIST/unicorn-racing-stack/blob/main/INSTALLATION.md#udev-rules-setup) for details.
+> You can also set udev rules to grant permissions automatically by reading the VESC port Manufacturer field. This keeps permissions applied after reboot, which is recommended for the computing unit on the race car. See the [reference](https://github.com/HMCL-UNIST/unicorn-racing-stack/blob/main/INSTALLATION.md#udev-rules-setup) for details.
 
 ## VESC Tool basics
 
@@ -61,11 +61,11 @@ The right tab in VESC Tool includes the following buttons.
 ### Important notes
 
 - Changes in VESC Tool are not applied until you click `Write`.
-- If you click `Write` without reading current settings first, you can overwrite existing values.
+- If you click `Write` without reading current settings first, you can overwrite them with dummy values.
 - Always use `Read` to confirm current settings before applying changes.
 - You can save configurations to a file.
 - Motor Settings changes motor parameters, and App Settings adjusts Servo output and IMU-related options.
 
 ## Wrap-up
 
-Once you understand the `Read` and `Write` flow, VESC Tool becomes much safer to use. Always read current settings before applying changes, and resolve port permission issues first. If needed, set up udev rules for automatic permissions.
+Once you understand the `Read` and `Write` flow, VESC Tool becomes much safer to use. Always read current settings from the VESC before applying changes, and resolve port permission issues first. If needed, set up udev rules for automatic permissions.

@@ -25,14 +25,14 @@ VESC에서 배터리와 연결되는 곳은 XT90 M 입니다. 대부분의 4s Li
 
 ![VESC와 모터 연결 방법](/assets/img/posts/vesc-battery-motor-connection/image-2.png)
 
-VESC에서 모터를 연결하는 부분은 4.0 bullet connector 입니다.
+VESC에서 모터를 연결하는 부분은 4.0 bullet F connect 입니다.
 
 ### Velineon 3500kv 모터와 연결하는 경우
 
 - 이 모터의 연결부는 3.5 male bullet connector 입니다.
-- 4.0 male + 3.5 female bullet connector를 연결해 자체 커넥터 3개를 만들면 됩니다.
+- 4.0 male + 3.5 female bullet connector를 **납땜 연결**해 자체 커넥터 3개를 만들면 됩니다.
 
-![4.0 male과 3.5 female을 납땜한 모습](/assets/img/posts/vesc-battery-motor-connection/bullet-connector-solder.png)
+![4.0 male + 3.5 female bullet connector 납땜한 모습](/assets/img/posts/vesc-battery-motor-connection/bullet-connector-solder.png)
 
 - 모터 연결선을 잘라 4.0 male bullet connector와 직접 납땜해서 사용하는 방법도 있습니다.
 
@@ -42,4 +42,4 @@ VESC에서 모터를 연결하는 부분은 4.0 bullet connector 입니다.
 
 ## 마무리
 
-VESC와 배터리, 모터를 연결하려면 커넥터 규격을 먼저 확인해야 합니다. 배터리는 XT90 M, 모터는 4.0 bullet connector 기준이며, 모터 종류에 따라 변환 커넥터나 납땜 작업이 필요할 수 있습니다. 연결 전에 커넥터 규격과 극성을 다시 확인해 안전하게 작업하시기 바랍니다.
+VESC와 배터리, 모터를 연결하려면 커넥터 규격을 먼저 확인해야 합니다. 모터 종류에 따라 변환 커넥터나 납땜 작업이 필요할 수 있습니다. 연결 전에 커넥터 규격과 극성을 다시 확인해 안전하게 작업하시기 바랍니다.
