@@ -32,7 +32,7 @@
       {% endfor %}
       <!-- home -->
       <li class="nav-item{% if page.layout == 'home' %}{{ " active" }}{% endif %}">
-        <a href="{{ '/posts/' | relative_url }}" class="nav-link">
+        <a href="{{ '/' | relative_url }}" class="nav-link">
           <i class="fa-fw fas fa-pen-nib"></i>
           <span>{{ site.data.locales[include.lang].tabs.posts | default: site.data.locales[include.lang].tabs.home | upcase }}</span>
         </a>

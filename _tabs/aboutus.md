@@ -2,7 +2,7 @@
 title: About Us
 icon: fas fa-info-circle
 order: -1
-permalink: /
+permalink: /aboutus/
 ---
 
 <div style="display: flex; align-items: flex-start; gap: 30px;">
