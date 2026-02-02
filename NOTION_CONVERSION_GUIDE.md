@@ -342,8 +342,8 @@ Chirpy 테마에서는 특별한 강조 블록을 사용할 수 있다. Notion�
   steps:
     - step: 1
       title: "VESC Tool 다운로드"
-      url: "/posts/vesc-tools-download/"
-      lang_ref: "vesc-tools-download"
+      url: "/posts/vesc-tool-download/"
+      lang_ref: "vesc-tool-download"
       description: "VESC Tool 설치 및 VESC 연결 방법"
 ```
 
