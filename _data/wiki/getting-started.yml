@@ -60,37 +60,25 @@
       description: "Stable firmware (6.05) upgrade guide"
 
     - step: 3
-      title: "Motor direction & current settings"
-      url: "/posts/vesc-general-tab/"
-      lang_ref: "vesc-general-tab"
-      description: "Basic settings in Motor Settings → General"
-
-    - step: 4
       title: "FOC setup"
-      url: "/posts/vesc-foc-tab/"
-      lang_ref: "vesc-foc-tab"
+      url: "/posts/vesc-foc-tab-first/"
+      lang_ref: "vesc-foc-tab-first"
       description: "Measure FOC motor parameters and set sensor mode"
 
-    - step: 5
+    - step: 4
       title: "Hall sensor setup"
-      url: "/posts/vesc-hall-sensor/"
-      lang_ref: "vesc-hall-sensor"
+      url: "/posts/vesc-hall-sensor-guide/"
+      lang_ref: "vesc-hall-sensor-guide"
       description: "Measure Hall sensors for sensored FOC"
 
+    - step: 5
+      title: "HFI setup"
+      url: "/posts/vesc-hfi-guide/"
+      lang_ref: "vesc-hfi-guide-new"
+      description: "Improve low-speed sensorless accuracy with HFI"
+
     - step: 6
-      title: "PID Speed Controller tuning"
-      url: "/posts/vesc-pid-controllers/"
-      lang_ref: "vesc-pid-controllers"
-      description: "Tune PID gains to improve RPM response"
-
-    - step: 7
-      title: "Servo output setup"
-      url: "/posts/vesc-servo-output/"
-      lang_ref: "vesc-servo-output"
-      description: "Enable and test servo output"
-
-    - step: 8
-      title: "IMU setup"
-      url: "/posts/vesc-imu/"
-      lang_ref: "vesc-imu"
-      description: "Enable built-in IMU and connect with ROS"
+      title: "VESC Tool basics"
+      url: "/posts/vesc-tool-basic-usage/"
+      lang_ref: "vesc-tool-basic-usage"
+      description: "Understand Read/Write flow and key buttons"

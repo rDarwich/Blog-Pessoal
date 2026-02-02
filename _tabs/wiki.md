@@ -98,9 +98,18 @@ order: 0
 </div>
 
 <div class="wiki-grid">
-  {% for section in site.data.wiki.getting-started %}
+{% for section in site.data.wiki.getting-started %}
+  {% assign first_step = section.steps | where_exp: "s", "s.url != ''" | first %}
   <div class="wiki-card">
-    <a href="{{ '/posts/getting-started/' | relative_url }}#{{ section.section }}">
+    {% if first_step %}
+      {% if first_step.external %}
+    <a href="{{ first_step.url }}" target="_blank">
+      {% else %}
+    <a href="{{ first_step.url | relative_url }}">
+      {% endif %}
+    {% else %}
+    <a href="#{{ section.section }}">
+    {% endif %}
       <div class="card-header">
         <i class="{{ section.icon }} card-icon"></i>
         <div class="card-title">{{ section.title }}</div>
