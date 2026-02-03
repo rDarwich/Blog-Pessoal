@@ -12,8 +12,6 @@ lang_ref: racing-stack-build-docker-vscode
 
 UNICORN Racing-stack을 Docker + VS Code 환경에서 빌드하고 실행하는 방법을 정리했습니다.
 
-![Docker & VS Code](/assets/img/posts/racing-stack-build-docker-vscode/docker-vscode-logo.png)
-
 ## 1. Docker 설치
 
 - [https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
