@@ -8,6 +8,7 @@ image:
   path: /assets/img/posts/vesc-hall-sensor-guide/overview.png
 lang: ko
 lang_ref: vesc-hall-sensor-guide
+recommended: true
 ---
 
 VESC에는 Hall Sensor를 활용해 모터를 정밀 제어하는 기능이 있습니다.

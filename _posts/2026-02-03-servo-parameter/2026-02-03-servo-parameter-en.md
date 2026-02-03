@@ -9,6 +9,7 @@ image:
 lang: en
 lang_ref: servo-parameter
 math: true
+recommended: true
 ---
 
 In autonomous driving, precise steering control directly affects path following performance. If the conversion between steering commands and actual wheel angles is inaccurate, the vehicle cannot follow the intended path and may result in path deviation or accidents. This post covers the concept and characteristics of Servo Parameters and how to calibrate them through experiments.

@@ -9,6 +9,7 @@ image:
 lang: ko
 lang_ref: servo-parameter
 math: true
+recommended: true
 ---
 자율 주행에서 정확한 조향 제어는 경로 추종 성능에 직접적인 영향을 미칩니다. 조향 명령과 실제 바퀴 각도 사이의 변환이 정확하지 않으면, 차량은 의도한 경로를 따라가지 못하고 경로 이탈이나 사고로 이어질 수 있습니다. 본 포스트에서는 Servo Parameter의 개념과 특성, 그리고 실험을 통한 캘리브레이션 방법을 정리합니다.
 
