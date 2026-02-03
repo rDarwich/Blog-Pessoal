@@ -22,7 +22,7 @@ FOC는 Field Oriented Control의 약자이며, BLDC 모터 제어의 기본 방�
 
 ## Sensor Mode 종류
 
-General → General 탭에서 Sensor Mode를 선택할 수 있으며, 크게 Sensorless, HFI, Hall Sensors로 나뉩니다.
+General → General 탭에서 Sensor Mode를 선택할 수 있으며, 크게 Sensorless, [HFI]({{ site.baseurl }}/posts/vesc-hfi-guide/), [Hall Sensors]({{ site.baseurl }}/posts/vesc-hall-sensor-guide/)로 나뉩니다.
 
 ![Sensor Mode 선택](/assets/img/posts/vesc-foc-tab-first/sensor-mode.png)
 

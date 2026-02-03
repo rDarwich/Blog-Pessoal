@@ -9,14 +9,11 @@ image:
 lang: ko
 lang_ref: vesc-general-tab-motor-settings
 ---
-
 Motor Settings를 변경할 때 주의해야 할 사항과 주요 설정 방법을 정리했습니다.
 
 ## Motor Settings 저장 방법
 
 Motor Settings에 변화를 주었다면 **우측 메뉴바의 `Write Motor Configuration`**을 반드시 클릭해 저장해야 합니다.
-
-![MotorSettings-General-Current 탭 화면](/assets/img/posts/vesc-general-tab-motor-settings/general-current-tab.png)
 
 ## 모터 회전 방향 세팅
 
@@ -31,6 +28,8 @@ Motor Settings에 변화를 주었다면 **우측 메뉴바의 `Write Motor Conf
 - Sensorless 모터는 저속에서 로터 위치를 정확히 추정하기 어렵기 때문에, 초기 구간에서는 **상대적으로 높은 전류로 로터를 먼저 회전**시키고 일정 속도 이상에서 FOC 제어로 넘어가는 특성이 있습니다.
 - 이때 모터 최대 허용 전류가 높으면 출발 시 VESC가 견뎌야 하는 전류가 매우 커집니다. DRV8301처럼 전류를 제한하는 드라이버가 타거나, 전류가 높은 상태가 반복되면 **공룡 소리**가 발생하고 주행에 실패할 수 있습니다.
 - 반대로 모터 최대 허용 전류가 너무 낮으면, 차량이 무거운 경우 출발 자체가 어려워져 **공룡 소리**가 발생할 수 있습니다.
+
+![MotorSettings-General-Current 탭 화면](/assets/img/posts/vesc-general-tab-motor-settings/general-current-tab.png)
 
 ## 주의사항
 

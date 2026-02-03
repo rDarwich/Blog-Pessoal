@@ -8,6 +8,7 @@ image:
   path: /assets/img/posts/vesc-hall-sensor-guide/overview.png
 lang: en
 lang_ref: vesc-hall-sensor-guide
+recommended: true
 ---
 
 VESC can use Hall Sensors for precise motor control.

@@ -9,6 +9,7 @@ image:
 lang: en
 lang_ref: erpm-gain-calibration
 math: true
+recommended: true
 ---
 
 When controlling a motor by speed rather than throttle, it is critical to find the proportional constant that maps user commands to the actual hardware setup. This constant affects odometry drift, and a wrong value can lead to control errors and accidents. This post summarizes the ERPM gain concept, theoretical calculation, and practical calibration.

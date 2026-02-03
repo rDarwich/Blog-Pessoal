@@ -22,7 +22,7 @@ FOC stands for Field Oriented Control and is the core control method for BLDC mo
 
 ## Sensor Mode types
 
-You can select the Sensor Mode in General → General. The main options are Sensorless, HFI, and Hall Sensors.
+You can select the Sensor Mode in General → General. The main options are Sensorless, [HFI]({{ site.baseurl }}/posts/vesc-hfi-guide/), and [Hall Sensors]({{ site.baseurl }}/posts/vesc-hall-sensor-guide/).
 
 ![Sensor Mode selection](/assets/img/posts/vesc-foc-tab-first/sensor-mode.png)
 
