@@ -1,51 +1,99 @@
 ---
-title: "Adaptive Wheel Odometry: Dynamic ERPM Gain Model"
+title: Correcting Wheel Slip with Adaptive Wheel Odometry
 author: hangyo-cho
-date: 2026-02-02 20:57:54 +0900
-categories: [racing stack]
-tags: [racing-stack, odometry, wheel-odometry, localization, erpm]
+date: 2026-02-02 11:00:00 +0900
+categories: [racing stack, state estimation]
+tags: [cartographer, lidar, odometry]
 image:
-  path: /assets/img/posts/adaptive-wheel-odometry/overview.png
-math: true
+  path: /assets/img/posts/adaptive-wheel-odometry/adaptive-odometry-diagram.png
 lang: en
 lang_ref: adaptive-wheel-odometry
----
-
-## Design goal
-
-The goal is to make the wheel-odometry velocity ($v_{wheel}$) as close as possible to the true vehicle velocity ($v_{car}$). To achieve this, the ERPM gain is modeled as a **dynamic value** rather than a fixed constant.
+math: true
 
 ---
 
-## Prior knowledge and assumptions
+## Design Goal
 
-The model is based on the following observations and hypotheses.
+The goal was to make the actual vehicle speed ($v_{car}$) and the wheel odometry speed ($v_{wheel}$) as similar as possible. To achieve this, the $ERPM\ gain$ value was designed to change dynamically based on driving conditions, rather than being a fixed $constant$.
 
-1. **Acceleration phase**: wheel odometry tends to overestimate the true velocity.
-2. **Braking phase**: wheel odometry tends to underestimate the true velocity.
-3. **Proportionality to acceleration**: slip magnitude is assumed to be proportional to longitudinal acceleration ($a_x$).
-4. **Slip at constant speed**: a non-zero slip is present even during constant-velocity motion.
+---
+
+## Prior Knowledge
+
+This model was designed based on the following four key pieces of prior knowledge and assumptions.
+
+1. **Acceleration Phase**: The wheel odometry prediction is larger than the actual speed.
+2. **Braking Phase**: The wheel odometry prediction is smaller than the actual speed.
+3. **Acceleration Proportionality**: The degree of slip is assumed to be proportional to the vehicle heading direction acceleration ($a_x$).
+4. **Constant Velocity Slip**: A certain amount of slip occurs even during constant velocity driving without acceleration.
 
 ---
 
 ## Equation
 
-Based on the assumptions above, we use the following dynamic relationship.
+Based on the prior knowledge described above, the following dynamic equation was derived.
 
 $$
 \text{Adaptive ERPM gain} = (\text{Theoretical ERPM gain}) + \sigma \cdot a_x + \delta
 $$
 
-### Parameters
+---
 
-- **$\sigma$ (Slip rate)** and **$\delta$ (Offset)**: tuning parameters that adapt to track conditions and localization quality when direct slip measurement is not available.
+## Parameter Configuration
+
+- **$\sigma$ (Slip rate) and $\delta$ (Offset)**: Rather than directly measuring the degree of slipperiness, these were set as separate tuning parameters to flexibly respond to the road surface conditions at the competition venue and the quality of Localization.
+
+> By adjusting the $\sigma$ and $\delta$ values according to road surface conditions, stable odometry can be obtained in various environments.
+{: .prompt-tip }
 
 ---
 
-## Result
+## Key Source Code Analysis
 
-With the dynamic gain model and optimized parameters, the error between wheel odometry and true vehicle speed can be significantly reduced.
+The code below **filters the acceleration data from the IMU using a Low-pass filter** and **calculates the Adaptive ERPM gain** using the filtered acceleration value.
 
-## Wrap-up
+```cpp
+// adaptive_vesc_to_odom.cpp
+// 114~116
 
-The adaptive ERPM gain model improves wheel-odometry accuracy by reflecting slip during acceleration, braking, and constant-speed motion. By tuning $\sigma$ and $\delta$ to the surface and localization quality, you can achieve more stable and reliable velocity estimates.
+// Filter acceleration data using Low-pass filter
+filtered_linear_accel_x = l_filter_alpha_ * linear_accel_x + (1-l_filter_alpha_)*filtered_linear_accel_x;
+
+// Calculate Adaptive ERPM gain: (Theoretical gain + offset) + σ * a_x
+double filtered_speed_to_erpm_gain_ = (speed_to_erpm_gain_ + eprm_offset_) + accel_gain_ * filtered_linear_accel_x;
+```
+
+The code below **calculates the current speed using the Adaptive ERPM gain** computed above.
+
+```cpp
+// adaptive_vesc_to_odom.cpp
+// 121~126
+
+// Calculate current speed using Adaptive gain
+double current_speed = (-state->state.speed + speed_to_erpm_offset_) / filtered_speed_to_erpm_gain_;
+
+// Apply deadzone to remove noise
+if (std::fabs(current_speed) < 0.05)
+{
+  current_speed = 0.0;
+}
+```
+
+---
+
+## Results
+
+By applying this dynamic Gain model and optimizing the parameters, the error between actual speed and odometry was effectively reduced.
+
+---
+
+## Summary
+
+Adaptive Wheel Odometry is a technique that corrects wheel slip occurring during acceleration/deceleration in real-time using IMU acceleration data.
+
+Key points summarized:
+- **Dynamic ERPM gain**: Uses a gain that changes dynamically based on acceleration instead of a fixed constant
+- **Low-pass filter**: Removes noise from IMU acceleration data to obtain stable correction values
+- **Tuning parameters**: Adjust $\sigma$ (slip rate) and $\delta$ (offset) according to road surface conditions
+
+This technique is particularly effective for improving Localization performance on low-friction surfaces or during high-speed driving. When used together with Cartographer, more accurate position estimation becomes possible.

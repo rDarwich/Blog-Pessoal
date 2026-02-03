@@ -1,0 +1,337 @@
+---
+title: Pure Localization Guide with Cartographer
+author: hangyo-cho
+date: 2026-02-03 10:00:00 +0900
+categories: [racing stack, state estimation]
+tags: [Localization, cartographer, imu, lidar, odometry]
+image:
+  path: /assets/img/posts/cartographer-localization/cartographer-localization-flow.png
+lang: en
+lang_ref: cartographer-localization
+---
+
+## Cartographer Localization
+
+### Core Concepts
+
+**Cartographer Pure Localization** is a mode that performs **position estimation only** based on a pre-built map (.pbstream) and **does not create new maps**.
+
+### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Map-based** | Uses pre-built high-quality map |
+| **Real-time** | High-frequency position estimation at 40Hz+ |
+| **Memory Efficient** | Constant memory usage (max 3 submaps) |
+| **Stable** | Consistent performance with optimized map |
+| **Initial Pose Required** | Initial position setting is mandatory |
+
+### Basic Operation Principle
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Input: Prior Map (.pbstream)                        │
+├─────────────────────────────────────────────────────┤
+│  🗺️ Frozen Submaps (pre-built map, not modified)    │
+└─────────────────────┬───────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────┐
+│ Sensor Data Input                                   │
+├─────────────────────────────────────────────────────┤
+│  📡 LiDAR Scan  +  🧭 IMU  +  🚗 Wheel Odometry     │
+└─────────────────────┬───────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────┐
+│ Local SLAM (Real-time Tracking)                     │
+├─────────────────────────────────────────────────────┤
+│  - Pose Extrapolation (IMU + Odom prediction)       │
+│  - Scan Matching (Local submaps only)               │
+│  - Local Submap creation (max 3 kept) ← Trimmer     │
+│  → Fast tracking (40+ Hz)                           │
+└─────────────────────┬───────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────┐
+│ Global SLAM (Pose Graph Optimization)               │
+├─────────────────────────────────────────────────────┤
+│  - Constraint creation with Prior Map               │
+│  - Pose Graph Optimization (global optimization)    │
+│  → Drift correction (periodic, every 2 nodes)       │
+└─────────────────────┬───────────────────────────────┘
+                      ↓
+┌───────────────────────────────────────────────────────────┐
+│ Output                                                    │
+├───────────────────────────────────────────────────────────┤
+│  📍 /tracked_pose (PoseStamped)                           │
+│  📊 /base_link_pose_with_cov (PoseWithCovarianceStamped)  │
+└───────────────────────────────────────────────────────────┘
+```
+
+### SLAM vs Pure Localization
+
+| Characteristic | SLAM (Mapping) | Pure Localization |
+|----------------|----------------|-------------------|
+| Map Creation | ✅ Creates new map | ❌ Uses existing map |
+| Submap Addition | ✅ Continuously added | ❌ Max 3 kept (Trimmer) |
+| Memory Usage | Increases (proportional to time) | Constant |
+| Initial Position | Not required | **Required** |
+| PGO Frequency | Every 20 nodes | Every 2 nodes (more frequent) |
+
+### Pure Localization Trimmer
+
+```
+Time flow →
+
+[Prior Map Submaps: S0, S1, S2, ..., S_n] (Frozen)
+                                            ↓
+[Local SLAM Submaps: L0, L1, L2] ← Max 3 kept
+                     ↑   ↑   ↑
+                  Delete Keep Keep
+```
+
+**Key Points**:
+- Prior map submaps are **frozen** and not subject to optimization
+- Submaps generated by Local SLAM are maintained using a **rolling window** approach, keeping only the most recent 3
+- Memory usage is **kept constant**
+
+```lua
+TRAJECTORY_BUILDER.pure_localization_trimmer = {
+  max_submaps_to_keep = 3,  -- This is the key!
+}
+```
+
+---
+
+## Modified Cartographer (Localization)
+
+The UNICORN racing team modified Cartographer Localization to optimize for **racing environments**.
+
+### Modification #1: PoseWithCovarianceStamped Publisher
+
+#### Background Problem
+
+- **Original Cartographer**:
+  - Only publishes `/tracked_pose` (PoseStamped)
+  - **No covariance information**
+  - Downstream modules cannot determine position uncertainty
+
+- **Racing Requirements**:
+  - Planning & Control need to know **position reliability**
+  - High uncertainty → Conservative driving
+  - Low uncertainty → Aggressive driving
+
+#### Solution
+
+**Publish PoseWithCovarianceStamped additionally**.
+
+`node.cc:122-124`:
+```cpp
+published_pose_publisher_ =
+    node_handle_.advertise<::geometry_msgs::PoseWithCovarianceStamped>(
+        "base_link_pose_with_cov", kLatestOnlyPublisherQueueSize);
+```
+
+`node.cc:329-341`:
+```cpp
+::geometry_msgs::PoseWithCovarianceStamped pose_cov_msg;
+pose_cov_msg.header.frame_id = node_options_.map_frame;
+pose_cov_msg.header.stamp = stamped_transform.header.stamp;
+pose_cov_msg.pose.pose = ToGeometryMsgPose(tracking_to_map * (*trajectory_data.published_to_tracking));
+pose_cov_msg.pose.covariance = {{
+    0.001, 0,     0,     0,       0,       0,
+    0,     0.001, 0,     0,       0,       0,
+    0,     0,     0.001, 0,       0,       0,
+    0,     0,     0,     0.0001,  0,       0,
+    0,     0,     0,     0,       0.0001,  0,
+    0,     0,     0,     0,       0,       0.0001
+}};
+published_pose_publisher_.publish(pose_cov_msg);
+```
+
+**Covariance Matrix**:
+- Position (x, y, z): 0.001 m² (σ ≈ 3.2 cm)
+- Orientation (roll, pitch, yaw): 0.0001 rad² (σ ≈ 0.01 rad ≈ 0.57°)
+
+**Benefits**:
+- Planning module can adjust strategy based on position reliability
+- Enables sensor fusion with Kalman Filter
+- Compatible with standard ROS Navigation Stack
+
+### Modification #2: Adaptive Wheel Odometry
+
+#### Background Problem
+
+In low-friction conditions (e.g., tire wear, marble floor, dust):
+- **Wheel slip ⬆️**
+- **Wheel odometry ≠ Actual velocity**
+- Inaccurate pose extrapolation
+- Degraded scan matching initial guess
+- **Result**: Localization performance degradation
+
+#### Solution
+
+**Adaptive Wheel Odometry**: Real-time odometry correction based on LiDAR.
+
+> For detailed information, see [Adaptive Wheel Odometry Guide]({{ site.baseurl }}/posts/adaptive-wheel-odometry/).
+{: .prompt-info }
+
+**Core Idea**:
+- Compare scan matching results with wheel odometry
+- Dynamically adjust odometry scaling factor when slip is detected
+- Improve pose extrapolation with corrected odometry
+
+**Benefits**:
+- Stable localization even in low-friction environments
+- Faster scan matching convergence
+- Overall improved tracking performance
+
+### Modification #3: Dynamic Initial Pose Setting
+
+#### Background Problem
+
+- **Pure Localization Characteristics**:
+  - Initial position setting is **mandatory**
+  - Wrong initial position → Localization failure
+
+- **Racing Scenarios**:
+  - Vehicle may start from different positions
+  - Modifying launch file every time is inefficient
+
+#### Solution
+
+**RViz-based dynamic Initial Pose setting** was implemented.
+
+`set_pose_v2_node.py`:
+
+1. **Wait for RViz "2D Pose Estimate" tool**
+```python
+rospy.Subscriber('initialpose', PoseWithCovarianceStamped, self.update_initial_pose)
+```
+
+2. **Finish current Trajectory**
+```python
+rosservice call /finish_trajectory {trajectory_id}
+```
+
+3. **Start new Trajectory (with Initial Pose)**
+```python
+rosservice call /start_trajectory "{
+    configuration_directory: ...,
+    configuration_basename: 'localization.lua',
+    use_initial_pose: true,
+    initial_pose: {position: {x, y, z}, orientation: {x, y, z, w}},
+    relative_to_trajectory_id: 0  # Prior map trajectory
+}"
+```
+
+**Usage**:
+1. Launch Localization
+2. Click "2D Pose Estimate" in RViz
+3. Click on map at current position & drag (to set direction)
+4. New trajectory starts automatically
+
+**Benefits**:
+- Re-initialization possible at any time during runtime
+- Quick recovery from localization failure
+- Support for various starting positions
+
+### Localization-specific Tuning
+
+`localization.lua`:
+
+```lua
+-- Frequent PGO (mapping: 20, localization: 2)
+POSE_GRAPH.optimize_every_n_nodes = 2
+
+-- Reduce rotation weight (rotation changes are not significant at high speed)
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 0.1
+
+-- Accumulate scans (reduce noise)
+TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 10
+
+-- Loop closure range
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.linear_search_window = 1.0  -- 1m
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher.angular_search_window = math.rad(20.)  -- 20°
+
+-- Disable global localization (since initial pose is required)
+POSE_GRAPH.global_sampling_ratio = 0.000
+```
+
+> For detailed information on creating high-quality maps, refer to the Cartographer Mapping guide.
+{: .prompt-tip }
+
+---
+
+## Localization Guide
+
+### Prerequisites
+
+**Requirements**:
+
+1. **Prior Map** Preparation
+   - Location: `UNICORN/stack_master/maps/{map_name}/`
+   - Files:
+     - `{map_name}.pbstream` (Cartographer state)
+     - `{map_name}.png` (visualization)
+     - `{map_name}.yaml` (metadata)
+
+2. **Sensor Normal Operation**
+```bash
+rostopic hz /scan        # LiDAR
+rostopic hz /imu/data    # IMU
+rostopic hz /vesc/odom   # Wheel odometry
+```
+
+3. **Map Quality Check**
+   - Consistent map with good loop closures
+   - Map with minimal drift
+
+### Execution
+
+#### Method 1: Run on Actual Vehicle
+
+```bash
+# Launch Localization
+roslaunch stack_master base_system.launch \
+  map:={map_name}
+```
+
+#### Method 2: Test with Bag File
+
+```bash
+# If rosbag was recorded beforehand:
+rosbag play ~~~.bag --clock
+
+roslaunch stack_master bag_localization.launch \
+  map:={map_name}
+```
+
+### Initial Pose Setting
+
+> Pure Localization **requires** initial position setting.
+{: .prompt-warning }
+
+1. **Check RViz**
+   - RViz launches automatically after launch
+   - Prior map is displayed
+
+2. **Use "2D Pose Estimate"**
+   - Click in the RViz top toolbar
+   - Click on the map at the vehicle's **actual current position**
+   - Drag to set **direction**
+
+3. **Verify Convergence**
+   - Check if LiDAR scan aligns with the map
+   - Should match accurately within a few seconds
+
+---
+
+## Summary
+
+This article covered the core concepts of Cartographer Pure Localization and the modifications made by the UNICORN racing team for racing environments.
+
+Key modifications summarized:
+- **PoseWithCovarianceStamped Publisher**: Provides position uncertainty information
+- **Adaptive Wheel Odometry**: Stable localization in low-friction environments
+- **Dynamic Initial Pose Setting**: Runtime initial position setting via RViz
+
+When using Pure Localization, you must prepare a **high-quality Prior Map** and **set the initial position accurately**. These two factors have the greatest impact on localization performance.
